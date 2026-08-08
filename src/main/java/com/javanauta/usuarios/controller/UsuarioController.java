@@ -5,7 +5,6 @@ import com.javanauta.usuarios.business.dtos.UsuarioDTO;
 
 import com.javanauta.usuarios.infrastructure.entity.Usuario;
 import com.javanauta.usuarios.infrastructure.security.JwtUtil;
-import io.jsonwebtoken.Jwt;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
@@ -48,5 +47,11 @@ public class UsuarioController {
     public ResponseEntity<Void> deletarUsuarioPorEmail(@PathVariable String email) {
         usuarioService.deletarUsuarioPorEmail(email);
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping
+    public ResponseEntity<UsuarioDTO> atualizarDadosUsuario(@RequestBody UsuarioDTO usuarioDTO,
+                                                            @RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok(usuarioService.atualizarDadosUsuario(token, usuarioDTO));
     }
 }

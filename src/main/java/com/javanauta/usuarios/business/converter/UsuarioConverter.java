@@ -109,4 +109,18 @@ public class UsuarioConverter {
                 .ddd(telefone.getDdd())
                 .build();
     }
+
+
+
+    // Atualizar os Dados do Usuário que forem passados na Requisição
+    public Usuario atualizarUsuario(UsuarioDTO usuarioDTO, Usuario usuarioEntity) {
+        return Usuario.builder()
+                .id(usuarioEntity.getId())
+                .nome(usuarioDTO.getNome() != null ? usuarioDTO.getNome() : usuarioEntity.getNome())
+                .email(usuarioDTO.getEmail() != null ? usuarioDTO.getEmail() : usuarioEntity.getEmail())
+                .senha(usuarioDTO.getSenha() != null ? usuarioDTO.getSenha() : usuarioEntity.getSenha())
+                .enderecos(usuarioEntity.getEnderecos())
+                .telefones(usuarioEntity.getTelefones())
+                .build();
+    }
 }
