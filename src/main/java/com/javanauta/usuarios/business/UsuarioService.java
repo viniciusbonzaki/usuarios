@@ -12,8 +12,8 @@ import com.javanauta.usuarios.infrastructure.exceptions.ResourceNotFoundExceptio
 import com.javanauta.usuarios.infrastructure.repository.EnderecoRepository;
 import com.javanauta.usuarios.infrastructure.repository.TelefoneRepository;
 import com.javanauta.usuarios.infrastructure.repository.UsuarioRepository;
-
 import com.javanauta.usuarios.infrastructure.security.JwtUtil;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -124,6 +124,40 @@ public class UsuarioService {
         Telefone telefone = usuarioConverter.atualizarTelefone(telefoneDTO, telefoneEntity);
 
         // Salvar os Dados no Banco de Dados
+        return usuarioConverter.converterParaTelefoneDTO(telefoneRepository.save(telefone));
+    }
+
+    // Método para adicionar um novo Endereço à um Usuário pelo seu Email
+    public EnderecoDTO cadastrarEndereco(String token, EnderecoDTO enderecoDTO) {
+        // Pegar o Email do Usuário que iremos adicionar um Endereco
+        String email = jwtUtil.extrairEmailToken(token.substring(7));
+
+        // Pegar o Usuário que iremos adicionar um Endereco através do Email
+        Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(
+                () -> new ResourceNotFoundException("Email não encontrado " + email)
+        );
+
+        // Criar o Novo Endereço à ser adicionado, relacionando o ID do Usuário
+        Endereco endereco = usuarioConverter.converterParaEnderecoEntity(enderecoDTO, usuario.getId());
+
+        // Salvar o Endereço no Dados no Banco de Dados
+        return usuarioConverter.converterParaEnderecoDTO(enderecoRepository.save(endereco));
+    }
+
+    // Método para adicionar um novo Telefone à um Usuário pelo seu Email
+    public TelefoneDTO cadastrarTelefone(String token, TelefoneDTO telefoneDTO) {
+        // Pegar o Email do Usuário que iremos adicionar um Telefone
+        String email = jwtUtil.extrairEmailToken(token.substring(7));
+
+        // Pegar o Usuário que iremos adicionar um Telefone através do Email
+        Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(
+                () -> new ResourceNotFoundException("Email não encontrado " + email)
+        );
+
+        // Criar o Novo Telefone à ser adicionado, relacionando o ID do Usuário
+        Telefone telefone = usuarioConverter.converterParaTelefoneEntity(telefoneDTO, usuario.getId());
+
+        // Salvar o Telefone no Banco de Dados
         return usuarioConverter.converterParaTelefoneDTO(telefoneRepository.save(telefone));
     }
 }

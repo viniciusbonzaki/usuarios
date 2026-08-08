@@ -147,4 +147,27 @@ public class UsuarioConverter {
                 .ddd(telefoneDTO.getDdd() != null ? telefoneDTO.getDdd() : telefoneEntity.getDdd())
                 .build();
     }
+
+
+    // Método que será utilizado para adicionar um Endereço através do ID do Usuário
+    public Endereco converterParaEnderecoEntity(EnderecoDTO enderecoDTO, Long idUsuario) {
+        return Endereco.builder()
+                .estado(enderecoDTO.getEstado())
+                .cidade(enderecoDTO.getCidade())
+                .rua(enderecoDTO.getRua())
+                .numero(enderecoDTO.getNumero())
+                .cep(enderecoDTO.getCep())
+                .complemento(enderecoDTO.getComplemento())
+                .id_usuario(idUsuario)
+                .build();
+    }
+
+    // Método que será utilizado para adicionar um Telefone através do ID do Usuário
+    public Telefone converterParaTelefoneEntity(TelefoneDTO telefoneDTO, Long idUsuario) {
+        return Telefone.builder()
+                .numero(telefoneDTO.getNumero())
+                .ddd(telefoneDTO.getDdd())
+                .id_usuario(idUsuario)
+                .build();
+    }
 }
