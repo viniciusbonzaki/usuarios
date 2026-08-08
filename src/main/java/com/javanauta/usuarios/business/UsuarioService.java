@@ -7,6 +7,7 @@ import com.javanauta.usuarios.infrastructure.exceptions.ConflictException;
 import com.javanauta.usuarios.infrastructure.exceptions.ResourceNotFoundException;
 import com.javanauta.usuarios.infrastructure.repository.UsuarioRepository;
 
+import com.javanauta.usuarios.infrastructure.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +20,7 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioConverter usuarioConverter;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     // Método para Salvar os Dados do Usuário no Banco
     public UsuarioDTO salvarUsuario(UsuarioDTO usuarioDTO) {
@@ -64,4 +66,21 @@ public class UsuarioService {
         usuarioRepository.deleteByEmail(email);
     }
 
+    // Método para atualizar os dadods de um Usuário pelo Email
+    public UsuarioDTO atualizarDadosUsuario(String token, UsuarioDTO usuarioDTO) {
+        // Extrair o Email do Usuário através do JWT Token
+        String email = jwtUtil.extrairEmailToken(token.substring(7));
+        usuarioDTO.setSenha(usuarioDTO.getSenha() != null ? passwordEncoder.encode(usuarioDTO.getSenha()) : null);
+
+        // Encontrar o Usuário Entity através do Email
+        Usuario usuarioEntity = usuarioRepository.findByEmail(email).orElseThrow(
+                () -> new ResourceNotFoundException("Email não encontrado " + email)
+        );
+
+        // Atualizar os Dados do Usuário comparando com os que foram passados
+        Usuario usuario = usuarioConverter.atualizarUsuario(usuarioDTO, usuarioEntity);
+
+        // Salvar os Dados no Banco de Dados
+        return usuarioConverter.converterParaUsuarioDTO(usuarioRepository.save(usuario));
+    }
 }
