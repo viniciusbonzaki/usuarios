@@ -1,9 +1,11 @@
 package com.javanauta.usuarios.controller;
 
 import com.javanauta.usuarios.business.UsuarioService;
+import com.javanauta.usuarios.business.ViaCepService;
 import com.javanauta.usuarios.business.dtos.EnderecoDTO;
 import com.javanauta.usuarios.business.dtos.TelefoneDTO;
 import com.javanauta.usuarios.business.dtos.UsuarioDTO;
+import com.javanauta.usuarios.business.dtos.ViaCepDTO;
 import com.javanauta.usuarios.infrastructure.security.JwtUtil;
 import com.javanauta.usuarios.infrastructure.security.SecurityConfig;
 
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final ViaCepService viaCepService;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
@@ -38,6 +41,16 @@ public class UsuarioController {
     @ApiResponse(responseCode = "500", description = "Erro de Servidor!")
     public ResponseEntity<UsuarioDTO> salvarUsuario(@RequestBody UsuarioDTO usuarioDTO) {
         return ResponseEntity.ok(usuarioService.salvarUsuario(usuarioDTO));
+    }
+
+    // Api Via Cep
+    @GetMapping("/endereco/{cep}")
+    @Operation(summary = "Coletar dados do Enderéco", description = "Coleta os dados de um Endereço através do CEP")
+    @ApiResponse(responseCode = "200", description = "Dados do Endereço coletados com Sucesso!")
+    @ApiResponse(responseCode = "400", description = "Formato do CEP é Inválido!")
+    @ApiResponse(responseCode = "500", description = "Erro de Servidor!")
+    public ResponseEntity<ViaCepDTO> buscarDadosCEP(@PathVariable("cep") String cep) {
+        return ResponseEntity.ok(viaCepService.buscarDadosEndereco(cep));
     }
 
     @PostMapping("/login")
