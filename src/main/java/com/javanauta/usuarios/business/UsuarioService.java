@@ -9,6 +9,7 @@ import com.javanauta.usuarios.infrastructure.entity.Telefone;
 import com.javanauta.usuarios.infrastructure.entity.Usuario;
 import com.javanauta.usuarios.infrastructure.exceptions.ConflictException;
 import com.javanauta.usuarios.infrastructure.exceptions.ResourceNotFoundException;
+import com.javanauta.usuarios.infrastructure.exceptions.UnauthorizedException;
 import com.javanauta.usuarios.infrastructure.repository.EnderecoRepository;
 import com.javanauta.usuarios.infrastructure.repository.TelefoneRepository;
 import com.javanauta.usuarios.infrastructure.repository.UsuarioRepository;
@@ -16,6 +17,12 @@ import com.javanauta.usuarios.infrastructure.security.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +34,7 @@ public class UsuarioService {
     private final EnderecoRepository enderecoRepository;
     private final TelefoneRepository telefoneRepository;
     private final UsuarioConverter usuarioConverter;
+    private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
@@ -60,6 +68,20 @@ public class UsuarioService {
     // Verificar se o Email já existe utilizando o Método "existsByEmail" de UsuarioRepository
     public boolean verificarSeEmailExiste(String email) {
         return usuarioRepository.existsByEmail(email);
+    }
+
+    // Autenticar o Usuário por Email e Senha e gerar o Token JWT
+    public String autenticarUsuario(UsuarioDTO usuarioDTO) throws UnauthorizedException {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(usuarioDTO.getEmail(), usuarioDTO.getSenha())
+            );
+
+            return "Bearer " + jwtUtil.generateToken(authentication.getName());
+        }
+        catch (BadCredentialsException | UsernameNotFoundException | AuthorizationDeniedException e) {
+            throw new UnauthorizedException("Email e/ou Senha inválidos!", e);
+        }
     }
 
     // Buscar um Usuário pelo Email utilizando o Método "findByEmail" de UsuarioRepository

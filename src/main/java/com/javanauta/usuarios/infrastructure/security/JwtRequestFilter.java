@@ -1,10 +1,19 @@
 package com.javanauta.usuarios.infrastructure.security;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.javanauta.usuarios.business.dtos.ErrorResponseDTO;
+
+import io.jsonwebtoken.ExpiredJwtException;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,6 +21,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 // Define a classe JwtRequestFilter, que estende OncePerRequestFilter
 public class JwtRequestFilter extends OncePerRequestFilter {
@@ -28,35 +38,83 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     // Método chamado uma vez por requisição para processar o filtro
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+        try {
+            // Obtém o valor do header "Authorization" da requisição
+            final String authorizationHeader = request.getHeader("Authorization");
 
-        // Obtém o valor do header "Authorization" da requisição
-        final String authorizationHeader = request.getHeader("Authorization");
+            // Verifica se o cabeçalho existe e começa com "Bearer "
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                // Extrai o token JWT do cabeçalho
+                final String token = authorizationHeader.substring(7);
+                // Extrai o nome de usuário do token JWT
+                final String username = jwtUtil.extrairEmailToken(token);
 
-        // Verifica se o cabeçalho existe e começa com "Bearer "
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            // Extrai o token JWT do cabeçalho
-            final String token = authorizationHeader.substring(7);
-            // Extrai o nome de usuário do token JWT
-            final String username = jwtUtil.extrairEmailToken(token);
-
-            // Se o nome de usuário não for nulo e o usuário não estiver autenticado ainda
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                // Carrega os detalhes do usuário a partir do nome de usuário
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                // Valida o token JWT
-                if (jwtUtil.validateToken(token, username)) {
-                    // Cria um objeto de autenticação com as informações do usuário
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
-                    // Define a autenticação no contexto de segurança
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                // Se o nome de usuário não for nulo e o usuário não estiver autenticado ainda
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    // Carrega os detalhes do usuário a partir do nome de usuário
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                    // Valida o token JWT
+                    if (jwtUtil.validateToken(token, username)) {
+                        // Cria um objeto de autenticação com as informações do usuário
+                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                                userDetails, null, userDetails.getAuthorities());
+                        // Define a autenticação no contexto de segurança
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
                 }
             }
-        }
 
-        // Continua a cadeia de filtros, permitindo que a requisição prossiga
-        chain.doFilter(request, response);
+            // Continua a cadeia de filtros, permitindo que a requisição prossiga
+            chain.doFilter(request, response);
+        }
+        catch (ExpiredJwtException e) {
+            // Setar o Status do Erro (Unauthorized)
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+            // Definir o Tipo do Retorno da Mensagem (JSON)
+            response.setContentType("application/json");
+
+            // Escrever a Mensagem de Erro
+            response.getWriter().write(construirMensagemErro(
+                    HttpStatus.UNAUTHORIZED.value(),
+                    e.getMessage(),
+                    "Token Expirado!",
+                    request.getRequestURI()
+            ));
+        }
     }
+
+    // Método para construir uma Mensagem de Erro para Token Expirado utilizando um DTO
+    private String construirMensagemErro(int statusHttp, String erro, String mensagem, String caminhoErro) {
+        // Criar um Erro utulizando a classe ErrorResponseDTO
+        ErrorResponseDTO errorResponseDTO = ErrorResponseDTO.builder()
+                // Hora do Erro
+                .timestamp(LocalDateTime.now())
+                // Status HTTP do Erro
+                .httpStatus(statusHttp)
+                // Mensagem do Erro gerada pelo Sistema
+                .error(erro)
+                // Mensagem personalizada do Erro
+                .message(mensagem)
+                // Caminho do Erro
+                .path(caminhoErro)
+                .build();
+
+        // Criar um ObjectMapper para transformar o Erro em uma String
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        // Permitir a utilização de LocalDateTime com o ObjectMapper
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        // Retornar o Erro em formato de String com ObjectMapper
+        try {
+            return objectMapper.writeValueAsString(errorResponseDTO);
+        }
+        catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
