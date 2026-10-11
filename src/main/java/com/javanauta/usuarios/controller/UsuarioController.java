@@ -6,7 +6,7 @@ import com.javanauta.usuarios.business.dtos.EnderecoDTO;
 import com.javanauta.usuarios.business.dtos.TelefoneDTO;
 import com.javanauta.usuarios.business.dtos.UsuarioDTO;
 import com.javanauta.usuarios.business.dtos.ViaCepDTO;
-import com.javanauta.usuarios.infrastructure.security.JwtUtil;
+import com.javanauta.usuarios.infrastructure.exceptions.UnauthorizedException;
 import com.javanauta.usuarios.infrastructure.security.SecurityConfig;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,9 +17,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -31,8 +28,6 @@ public class UsuarioController {
 
     private final UsuarioService usuarioService;
     private final ViaCepService viaCepService;
-    private final AuthenticationManager authenticationManager;
-    private final JwtUtil jwtUtil;
 
     @PostMapping
     @Operation(summary = "Salvar Usuário", description = "Cria um novo Usuário e salva seus Dados")
@@ -58,14 +53,9 @@ public class UsuarioController {
     @ApiResponse(responseCode = "200", description = "Login realizado com Sucesso!")
     @ApiResponse(responseCode = "401", description = "Credenciais Inválidas!")
     @ApiResponse(responseCode = "500", description = "Erro de Servidor!")
-    public String loginUsuario(@RequestBody UsuarioDTO usuarioDTO) {
-        // Autenticar o Usuario por Email e Senha através do AuthenticationManager
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(usuarioDTO.getEmail(), usuarioDTO.getSenha())
-        );
-
-        // Gerar e Retornar um Token JWT através do Email (getName) após a Autenticação
-        return "Bearer " + jwtUtil.generateToken(authentication.getName());
+    public ResponseEntity<String> loginUsuario(@RequestBody UsuarioDTO usuarioDTO) throws UnauthorizedException {
+        // Autenticar o Usuario por Email e Senha e gerar um Token JWT
+        return ResponseEntity.ok(usuarioService.autenticarUsuario(usuarioDTO));
     }
 
     @GetMapping
