@@ -5,8 +5,8 @@ import com.javanauta.usuarios.business.dtos.TelefoneDTO;
 import com.javanauta.usuarios.business.dtos.UsuarioDTO;
 import com.javanauta.usuarios.infrastructure.entity.Endereco;
 import com.javanauta.usuarios.infrastructure.entity.Telefone;
-
 import com.javanauta.usuarios.infrastructure.entity.Usuario;
+
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

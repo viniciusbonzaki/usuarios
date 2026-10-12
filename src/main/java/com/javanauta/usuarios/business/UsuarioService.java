@@ -38,6 +38,8 @@ public class UsuarioService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
+    private static final String mensagemEmailNaoEncontrado = "Email não encontrado: ";
+
     // Método para Salvar os Dados do Usuário no Banco
     public UsuarioDTO salvarUsuario(UsuarioDTO usuarioDTO) {
         emailExistente(usuarioDTO.getEmail());
@@ -89,12 +91,12 @@ public class UsuarioService {
         try {
             return usuarioConverter.converterParaUsuarioDTO(
                     usuarioRepository.findByEmail(email).orElseThrow(
-                            () -> new ResourceNotFoundException("Email não encontrado " + email)
+                            () -> new ResourceNotFoundException(mensagemEmailNaoEncontrado + email)
                     )
             );
         }
         catch (ResourceNotFoundException e) {
-            throw new ResourceNotFoundException("Email não encontrado ", e.getCause());
+            throw new ResourceNotFoundException(mensagemEmailNaoEncontrado, e.getCause());
         }
     }
 
@@ -111,7 +113,7 @@ public class UsuarioService {
 
         // Encontrar o Usuário Entity através do Email
         Usuario usuarioEntity = usuarioRepository.findByEmail(email).orElseThrow(
-                () -> new ResourceNotFoundException("Email não encontrado " + email)
+                () -> new ResourceNotFoundException(mensagemEmailNaoEncontrado + email)
         );
 
         // Atualizar os Dados do Usuário comparando com os que foram passados
@@ -156,7 +158,7 @@ public class UsuarioService {
 
         // Pegar o Usuário que iremos adicionar um Endereco através do Email
         Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(
-                () -> new ResourceNotFoundException("Email não encontrado " + email)
+                () -> new ResourceNotFoundException(mensagemEmailNaoEncontrado + email)
         );
 
         // Criar o Novo Endereço à ser adicionado, relacionando o ID do Usuário
@@ -173,7 +175,7 @@ public class UsuarioService {
 
         // Pegar o Usuário que iremos adicionar um Telefone através do Email
         Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(
-                () -> new ResourceNotFoundException("Email não encontrado " + email)
+                () -> new ResourceNotFoundException(mensagemEmailNaoEncontrado + email)
         );
 
         // Criar o Novo Telefone à ser adicionado, relacionando o ID do Usuário
