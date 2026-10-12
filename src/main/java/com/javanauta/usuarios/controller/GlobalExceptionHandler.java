@@ -1,10 +1,8 @@
 package com.javanauta.usuarios.controller;
 
 import com.javanauta.usuarios.business.dtos.ErrorResponseDTO;
-import com.javanauta.usuarios.infrastructure.exceptions.ConflictException;
+import com.javanauta.usuarios.infrastructure.exceptions.*;
 import com.javanauta.usuarios.infrastructure.exceptions.IllegalArgumentException;
-import com.javanauta.usuarios.infrastructure.exceptions.ResourceNotFoundException;
-import com.javanauta.usuarios.infrastructure.exceptions.UnauthorizedException;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -73,6 +71,22 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 e.getMessage(),
                 "Dados fora do Padrão esperado!",
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(erro);
+    }
+
+    // Tratar uma JsonProcessException
+    @ExceptionHandler(JsonProcessException.class)
+    public ResponseEntity<ErrorResponseDTO> handleJsonProcessException(JsonProcessException e,
+                                                                       HttpServletRequest request) {
+        ErrorResponseDTO erro = construirMensagemErro(
+                HttpStatus.BAD_REQUEST.value(),
+                e.getMessage(),
+                "Erro ao tentar processar o JSON!",
                 request.getRequestURI()
         );
 

@@ -4,7 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import com.javanauta.usuarios.business.dtos.ErrorResponseDTO;
+import com.javanauta.usuarios.infrastructure.exceptions.JsonProcessException;
 
 import io.jsonwebtoken.ExpiredJwtException;
 
@@ -113,7 +115,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             return objectMapper.writeValueAsString(errorResponseDTO);
         }
         catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new JsonProcessException("Erro ao tentar processar o JSON!", e);
         }
     }
 
