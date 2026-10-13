@@ -2,7 +2,6 @@
 
 ## 📌 Sobre o Projeto
 
-
 O Agendador de Tarefas tem como objetivo permitir que usuários cadastrem tarefas com datas e horários específicos e recebam notificações por e-mail quando o momento programado se aproximar.
 
 Para organizar as responsabilidades da aplicação, o sistema foi desenvolvido com base na **arquitetura de microserviços**, dividindo suas funcionalidades em serviços independentes e especializados.
@@ -14,10 +13,11 @@ O ecossistema é composto por quatro microserviços:
 - **API de Notificação:** responsável pelo processamento e envio de notificações por e-mail.
 - **BFF (Backend for Frontend):** responsável por integrar os demais microserviços e centralizar a comunicação com a camada cliente.
 
+Este repositório é dedicado exclusivamente à **API de Usuários**, um dos quatro microserviços que compõem o Agendador de Tarefas.
 
-Esse repositório é dedicado exclusivamente à **API de Usuários**, um dos quatro microserviços que compõem o projeto Agendador de Tarefas que foi desenvolvido utilizando Java com Spring Boot, responsável por gerenciar as informações dos usuários e disponibilizar os recursos necessários para as operações relacionadas a seus dados pessoais.
+Desenvolvida com **Java 17 e Spring Boot**, a API é responsável por gerenciar as informações dos usuários e disponibilizar os recursos necessários para as operações relacionadas a seus dados pessoais.
 
-Além das operações de gerenciamento de usuários, o microserviço conta com autenticação baseada em JWT, controle de segurança com Spring Security, persistência de dados em PostgreSQL e integração com a API externa ViaCEP para consulta de informações de endereço a partir do CEP.
+O microserviço também utiliza **Spring Security e JWT** para autenticação, **PostgreSQL** para persistência de dados e a API externa **ViaCEP** para consulta de informações de endereço a partir do CEP.
 
 ## 🎯 Funcionalidades
 
@@ -27,7 +27,7 @@ A API de Usuários disponibiliza as seguintes funcionalidades:
 
 - Cadastro de novos usuários.
 - Consulta dos dados de um usuário a partir do e-mail.
-- Atualização dos dados cadastrais de um usuário.
+- Atualização dos dados de um usuário.
 - Exclusão de um usuário a partir do e-mail.
 
 ### Gerenciamento de endereços
@@ -51,14 +51,14 @@ A API de Usuários disponibiliza as seguintes funcionalidades:
 
 As principais tecnologias e ferramentas utilizadas no desenvolvimento deste microserviço são:
 
-- **Java 17**: Linguagem de programação
-- **Spring Boot**: Desenvolvimento e configuração da aplicação backend
-- **Spring Security**: Implementação dos mecanismos de segurança
-- **JWT**: Autenticação baseada em tokens
-- **Gradle**: Gerenciamento de dependências e build
-- **PostgreSQL**: Banco de dados relacional
-- **Docker**: Containerização da aplicação
-- **ViaCEP API**: Consulta de informações de endereço a partir do CEP
+- **Java 17:** linguagem de programação utilizada no desenvolvimento.
+- **Spring Boot:** framework para desenvolvimento da aplicação backend.
+- **Spring Security:** framework utilizado para implementar os mecanismos de segurança.
+- **JWT (JSON Web Token):** mecanismo de autenticação baseado em tokens.
+- **Gradle:** ferramenta de gerenciamento de dependências e build.
+- **PostgreSQL:** banco de dados relacional utilizado para persistência.
+- **Docker:** ferramenta utilizada para containerização da aplicação.
+- **ViaCEP API:** serviço externo utilizado para consulta de informações de endereço por CEP.
 
 ## 📂 Arquitetura e Organização do Projeto
 
@@ -94,9 +94,9 @@ Camada responsável por expor os recursos HTTP e receber as requisições dos cl
 
 As principais entidades do domínio são:
 
-- **Usuario**: representa o usuário cadastrado na aplicação e reúne as informações necessárias para seu gerenciamento e autenticação.
-- **Endereco**: representa os dados de endereço associados a um usuário. A aplicação também disponibiliza uma integração com o ViaCEP para consultar informações a partir do CEP.
-- **Telefone**: representa os dados de telefone associados a um usuário.
+- **Usuario:** representa o usuário cadastrado na aplicação e reúne as informações necessárias para seu gerenciamento e autenticação.
+- **Endereco:** representa os dados de endereço associados a um usuário. A aplicação também disponibiliza uma integração com o ViaCEP para consultar informações a partir do CEP.
+- **Telefone:** representa os dados de telefone associados a um usuário.
 
 A estrutura do domínio contempla a associação entre usuário, endereço e telefone, permitindo que essas informações sejam gerenciadas pelas operações disponibilizadas pela API.
 
@@ -106,10 +106,10 @@ A aplicação utiliza **Spring Security** em conjunto com **JSON Web Token (JWT)
 
 Essa abordagem permite autenticar usuários e validar tokens nas requisições protegidas, de acordo com as regras configuradas para a aplicação.
 
-- **`JwtRequestFilter`** Intercepta requisições para processar e validar o token JWT, conforme a implementação.
-- **`JwtUtil`** Centraliza operações relacionadas à criação e validação de tokens JWT.
-- **`SecurityConfig`** Define as configurações de segurança e as regras de acesso aos endpoints.
-- **`UserDetailsServiceImpl`** Implementa o carregamento dos dados do usuário para integração com o Spring Security.
+- **`JwtRequestFilter`:** intercepta requisições para processar e validar o token JWT, conforme a implementação.
+- **`JwtUtil`:** centraliza operações relacionadas à criação e validação de tokens JWT.
+- **`SecurityConfig`:** define as configurações de segurança e as regras de acesso aos endpoints.
+- **`UserDetailsServiceImpl`:** implementa o carregamento dos dados do usuário para integração com o Spring Security.
 
 A autenticação é realizada por meio do endpoint de login, que permite ao usuário obter um token para acessar os recursos protegidos, conforme a configuração da aplicação.
 
@@ -150,7 +150,7 @@ Os exemplos completos de requisições podem ser documentados com os seguintes d
 
 Para cada endpoint, recomenda-se documentar a rota exata, os parâmetros, o corpo JSON, o código HTTP de sucesso e os possíveis erros.
 
-## 🌐 Integração com a API ViaCEP
+## 🔗 Integração com a API ViaCEP
 
 A API de Usuários integra-se ao serviço externo [ViaCEP](https://viacep.com.br/) para consultar informações de endereço utilizando um CEP como referência.
 
@@ -169,7 +169,7 @@ A integração é organizada por meio do `ViaCepService` e do cliente responsáv
 
 O projeto utiliza Docker para containerização, facilitando a padronização do ambiente de execução e a implantação da aplicação.
 
-A configuração de execução está presente nos arquivos Docker como `Dockerfile` e `docker-compose.yaml`.
+As configurações de execução estão presentes nos arquivos Docker como `Dockerfile` e `docker-compose.yaml`.
 
 Antes de executar a aplicação em containers, verifique as configurações de conexão com o PostgreSQL e os parâmetros necessários para autenticação e integração com os serviços externos.
 
