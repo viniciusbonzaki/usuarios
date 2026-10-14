@@ -77,8 +77,8 @@ Camada responsável por concentrar a lógica de negócio e os componentes utiliz
 
 Camada responsável pelos componentes de persistência, acesso a recursos externos e infraestrutura técnica da aplicação.
 
-- `Entities`: representam as entidades persistidas no banco de dados.
-- `Repositories`: abstraem as operações de acesso e persistência de dados.
+- `Entity`: representam as entidades persistidas no banco de dados.
+- `Repository`: abstraem as operações de acesso e persistência de dados.
 - `Exceptions`: agrupam as exceções específicas utilizadas pela aplicação.
 - `Client`: realiza a comunicação com a API externa.
 - `Security`: implementam e configuram os mecanismos de autenticação e segurança.
